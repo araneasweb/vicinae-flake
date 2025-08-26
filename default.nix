@@ -16,13 +16,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "vicinae";
-  version = "0.6.2";
+  version = "0.7.0";
 
   src = fetchFromGitHub {
     owner = "vicinaehq";
     repo = "vicinae";
     rev = "v${version}";
-    hash = "sha256-hMDUrs5XkQ0FyIYZ1mp8DwMVHnxl/GWmRjs0CZ6eAh0=";
+    hash = "sha256-tXyP7KJxiLzmm1XrhPnCemg+TEBB8tuTlGyCKiTIdYQ=";
   };
 
   nativeBuildInputs = [
