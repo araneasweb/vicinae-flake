@@ -1,0 +1,30 @@
+name: Update Vicinae
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - run: |
+          VERSION=$(curl -s "https://api.github.com/repos/vicinaehq/vicinae/releases/latest" | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
+          OLD=$(grep -oP 'version = "\K[^"]*' "./default.nix")
+          if [ $VERSION != $OLD ]; then
+            HASH=$(nix-prefetch-url --unpack "https://github.com/vicinaehq/vicinae/archive/$VERSION.tar.gz")
+            sed -i "s/version = \"[^\"]*\"/version = \"$VERSION\"/; s/hash = \"sha256-[^\"]*\"/hash = \"sha256-$HASH\"/" "./default.nix"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "DONE=true" >> $GITHUB_ENV
+          fi
+      - uses: peter-evans/create-pull-request@v5
+        if: env.DONE
+        with:
+          title: "chore: update vicinae to ${{ env.VERSION }}"
+          
